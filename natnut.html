@@ -1,0 +1,147 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body>
+<script>
+async function getjson() {
+	let response = await fetch("https://vaccinedata.covid19nearme.com.au/data/all.json");
+	if (response.ok) { // if HTTP-status is 200-299
+		// get the response body (the method explained below)
+		let json = await response.json();
+		let vax = json[json.length - 1];
+		
+		// per covidlive, travel on left, total on right
+		let table = [
+			[0, 5, "Victoria"],
+			[2, 2, "NSW"],
+			[0, 0, "Queensland"],
+			[1, 1, "Western Australia"],
+			[0, 0, "South Australia"],
+			[0, 0, "Tasmania"],
+			[0, 0, "Northern Territory"],
+			[0, 0, "ACT"],
+		];
+		
+		table = table.map(row => ({ Local: row[1] - row[0], Travel: row[0], Total: row[1], State: row[2] }));
+		
+		const stableSort = (arr, compare) => arr
+			.map((item, index) => ({ item, index }))
+			.sort((a, b) => compare(a.item, b.item) || a.index - b.index)
+			.map(({ item }) => item);
+	
+		table = stableSort(table, (a, b) => a.Total < b.Total);
+		table = stableSort(table, (a, b) => a.Local < b.Local);
+		table[table.length] = {
+			State: "TOTAL",
+			Local: table.reduce((s, t) => s + t.Local, 0),
+			Travel: table.reduce((s, t) => s + t.Travel, 0),
+			Total: table.reduce((s, t) => s + t.Total, 0),
+		};
+		
+		let states = table.reduce((a,x) => ({...a, [x.State]: x}), {});
+
+		let table_formatted = "";
+		let bold = (str, bold) => bold ? "**" + str + "**" : str;
+		let boldnum = (num) => bold(num, num != 0);
+		table.forEach(row => table_formatted += `${bold(row.State, row.Total != 0)}|${row.Local == 0 ? "🍩" : boldnum(row.Local)}|${boldnum(row.Travel)}|${boldnum(row.Total)}` + "|\n");
+		
+		if (!vax.VALIDATED)
+			alert("Validation of vaccine stats failed");
+
+		let date_options = { year: 'numeric', month: 'long', day: 'numeric' };
+		let src_date = new Date(vax.DATE_AS_AT);
+		src_date.setDate(src_date.getDate() + 1);
+		let days_since = (d,m,y) => Math.trunc((src_date - new Date(y,m-1,d)) / (24*60*60*1000));
+		let vax_stats = (name, field, pop) =>
+			`|${name}|${vax[field+'_TOTAL'].toLocaleString()}|${vax[field+'_LAST_24HR'].toLocaleString()}|${pop?(vax[field+'_TOTAL']/pop*100).toFixed(2):''}|`;
+
+		let date_short = `${src_date.getDate()}-${src_date.toLocaleString('en-GB', {month:'long'})}-${src_date.getFullYear()}`
+		let vax_today = vax.TOTALS_NATIONAL_LAST_24HR.toLocaleString();
+		let vax_mn = (vax.TOTALS_NATIONAL_TOTAL/1e6).toFixed(2);
+		document.getElementsByName("title")[0].innerHTML = `Australia: ${states.TOTAL.Local} local and ${states.TOTAL.Travel} overseas new cases; +${vax_today} vaccinations, ${vax_mn}M in total (${date_short})`;
+		document.getElementsByName("message")[0].innerHTML = `
+# Summary
+
+* Victoria recorded ${states.Victoria.Local} new locally transmitted cases today
+* **${vax_today} additional vaccinations** were reported today
+* A **total ${vax.TOTALS_NATIONAL_TOTAL.toLocaleString()}** vaccine doses have been administered in Australia
+* There were ${states.TOTAL.Travel} new overseas cases recorded today
+
+&amp;#x200B;
+
+**National COVID-19 update today, ${src_date.toLocaleString('en-GB', date_options)}**
+
+||Locally acquired|HQ/Overseas|TOTAL|
+|:-|:-|:-|:-|
+${table_formatted}
+&amp;#x200B;
+
+**Days since last locally acquired case as at ${new Date().toLocaleString('en-GB', date_options)}**
+
+||Last locally acquired case|Days|
+|:-|:-|:-|
+|Northern Territory|Never|\-|
+|Tasmania|[15-May-2020](https://www.themercury.com.au/news/daily-blog-may-15-no-new-cases-modelling-shows-infection-rate/news-story/6a327031d435238b04d81a982b5191c4)|${days_since(15,5,2020)}|
+|ACT|[9-July-2020](https://www.covid19.act.gov.au/news-articles/act-covid-19-update-9-july-2020)|${days_since(9,7,2020)}|
+|South Australia|[23-Nov-2020](https://old.reddit.com/r/CoronavirusDownunder/comments/jz40k6/south_australia_covid19_news_case_updates_and/)|${days_since(23,11,2020)}|
+|Queensland|[3-Apr-2021](https://twitter.com/qldhealthnews/status/1378181260430827522)|${days_since(3,4,2021)}\*|
+|Western Australia|[2-May-2021](https://ww2.health.wa.gov.au/Media-releases/2021/COVID-19-update-2-May-2021)|${days_since(2,5,2021)}|
+|NSW|[6-May-2021](https://old.reddit.com/r/CoronavirusDownunder/comments/n5vxl7/nsw_records_2_new_local_cases_and_9_new_overseas/)|${days_since(6,5,2021)}|
+|Victoria|31-May-2021|${days_since(31,5,2021)}|
+
+\*Queensland recorded a historic case on [12-April-2021](https://new.reddit.com/r/CoronavirusDownunder/comments/mp1q5j/queensland_0_new_local_cases_1_historic_case_and/)
+
+# 💉 Vaccinating Australia
+
+**For more information about the COVID-19 vaccine in your state or territory, see the following links:** [ACT](https://www.covid19.act.gov.au/stay-safe-and-healthy/vaccine) | [NSW](https://www.health.nsw.gov.au/Infectious/covid-19/vaccine/Pages/default.aspx) | [NT](https://coronavirus.nt.gov.au/stay-safe/vaccinations) | [QLD](https://www.qld.gov.au/health/conditions/health-alerts/coronavirus-covid-19/protect-yourself-others/covid-19-vaccine) | [SA](https://www.sahealth.sa.gov.au/wps/wcm/connect/Public+Content/SA+Health+Internet/Conditions/Infectious+diseases/COVID-19/Vaccine/COVID-19+vaccinations) | [Tas](https://coronavirus.tas.gov.au/vaccination-information/covid-19-vaccination) | [Vic](https://www.coronavirus.vic.gov.au/vaccine) | [WA](https://www.wa.gov.au/organisation/covid-communications/covid-19-coronavirus-vaccines)
+
+&amp;#x200B;
+
+|State|Doses administered|Reported Today|Doses per 100 population|
+|:-|:-|:-|:-|
+${vax_stats('Victoria', 'STATE_CLINICS_VIC', 6694900)}
+${vax_stats('NSW', 'STATE_CLINICS_NSW', 8164100)}
+${vax_stats('Queensland', 'STATE_CLINICS_QLD', 5174400)}
+${vax_stats('WA', 'STATE_CLINICS_WA', 2661900)}
+${vax_stats('SA', 'STATE_CLINICS_SA', 1769300)}
+${vax_stats('Tasmania', 'STATE_CLINICS_TAS', 540600)}
+${vax_stats('ACT', 'STATE_CLINICS_ACT', 431100)}
+${vax_stats('NT', 'STATE_CLINICS_NT', 246000)}
+${vax_stats('Federal Residential Care', 'TOTALS_CWTH_AGED_CARE')}
+${vax_stats('GP/Respiratory Clinics', 'TOTALS_CWTH_PRIMARY_CARE')}
+${vax_stats('Australia', 'TOTALS_NATIONAL', 25687000)}
+
+**Notes:**
+
+* Each person requires two doses to be fully vaccinated
+* Tallies for states do not include Aged Care and GP vaccinations
+* Data current at ${new Date().toLocaleString('en-GB',  { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })}
+
+&amp;#x200B;
+
+[Chart: Vaccinations by State\/Program](https://preview.redd.it/8oireex1fm071.png?width=802&format=png&auto=webp&s=820dab4f5b846d077c093ae4f79fafb235471f52)
+
+Links and resources
+
+* [**Department of Health: Coronavirus (COVID-19) health alert**](https://www.health.gov.au/news/health-alerts/novel-coronavirus-2019-ncov-health-alert)
+* [**Coronavirus (COVID-19) resources for the general public**](https://www.health.gov.au/resources/collections/novel-coronavirus-2019-ncov-resources)
+* [**COVID-19 vaccines: News and information for Australians about the development, approval process and plans for COVID-19 vaccines**](https://www.health.gov.au/initiatives-and-programs/covid-19-vaccines).
+* [Information for COVID-19 vaccination providers](https://www.health.gov.au/initiatives-and-programs/covid-19-vaccines/information-for-covid-19-vaccination-providers)
+* [When will I get a COVID-19 vaccine?](https://www.health.gov.au/initiatives-and-programs/covid-19-vaccines/getting-vaccinated-for-covid-19/when-will-i-get-a-covid-19-vaccine)
+* [How COVID-19 vaccines will be distributed](https://www.health.gov.au/initiatives-and-programs/covid-19-vaccines/getting-vaccinated-for-covid-19/how-covid-19-vaccines-will-be-distributed)
+* [Information for aged care providers, workers and residents about COVID-19 vaccines](https://www.health.gov.au/initiatives-and-programs/covid-19-vaccines/getting-vaccinated-for-covid-19/information-for-aged-care-providers-workers-and-residents-about-covid-19-vaccines)
+* [Information for people with disability about COVID-19 vaccines](https://www.health.gov.au/initiatives-and-programs/covid-19-vaccines/getting-vaccinated-for-covid-19/information-for-people-with-disability-about-covid-19-vaccines)
+* [Information for Aboriginal and Torres Strait Islander peoples about COVID-19 vaccines](https://www.health.gov.au/initiatives-and-programs/covid-19-vaccines/getting-vaccinated-for-covid-19/information-for-aboriginal-and-torres-strait-islander-peoples-about-covid-19-vaccines)
+`;
+	  console.log(json[json.length - 1]);
+	} else {
+	  alert("HTTP-Error: " + response.status);
+	}
+}
+
+getjson();
+</script>
+
+<textarea name="title" rows="1" cols="120"></textarea>
+<textarea name="message" rows="80" cols="120"></textarea>
+
+
+</body></html>
