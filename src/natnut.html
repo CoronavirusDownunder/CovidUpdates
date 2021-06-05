@@ -88,8 +88,24 @@ async function getjson() {
 		last_case.forEach(row => last_case_table += `|${row.State}|${row.Date}|${row.Days}${row.Asterisks || ""}|\n`);
 		asterisks.forEach((row, index) => last_case_table += "\n" + row[2] + " " + row[1] + "\n");
 
-		let vax_stats = (name, field, pop) =>
-			`|${name}|${vax[field+'_TOTAL'].toLocaleString()}|${vax[field+'_LAST_24HR'].toLocaleString()}|${pop?(vax[field+'_TOTAL']/pop*100).toFixed(2):''}|`;
+		let state_vax_stats = function(name, field, pop) {
+			state_vax = vax['STATE_CLINICS_'+field+'_TOTAL'];
+      state_incr = vax['STATE_CLINICS_'+field+'_LAST_24HR'];
+      all_doses = state_vax + vax['CWTH_AGED_CARE_'+field+'_TOTAL'] + vax['CWTH_PRIMARY_CARE_'+field+'_TOTAL'];
+      all_incr = state_incr + vax['CWTH_AGED_CARE_'+field+'_LAST_24HR'] + vax['CWTH_PRIMARY_CARE_'+field+'_LAST_24HR'];
+			return `|${name}|${state_vax.toLocaleString()}|+${state_incr.toLocaleString()}|${all_doses.toLocaleString()}|+${all_incr.toLocaleString()}|${(all_doses/pop*100).toFixed(2)}|`;
+		}
+        
+    let nat_vax_stats = function(name, pop) {
+      nat_total = vax['TOTALS_NATIONAL_TOTAL'];
+      nat_incr = vax['TOTALS_NATIONAL_LAST_24HR']
+      states_total = nat_total - vax['TOTALS_CWTH_ALL_TOTAL'];
+      states_incr = nat_incr - vax['TOTALS_CWTH_ALL_LAST_24HR'];
+      return `|**${name}**|**${states_total.toLocaleString()}**|**+${states_incr.toLocaleString()}**|**${nat_total.toLocaleString()}**|**+${nat_incr.toLocaleString()}**|**${(nat_total/pop*100).toFixed(2)}**|`
+		}
+
+    let cwth_prog_stats = (name, field) =>
+			`|*${name}*|-|-|*${vax[field+'_TOTAL'].toLocaleString()}*|*+${vax[field+'_LAST_24HR'].toLocaleString()}*|-|`;
 
 		let vax_today = vax.TOTALS_NATIONAL_LAST_24HR.toLocaleString();
 		let vax_mn = (vax.TOTALS_NATIONAL_TOTAL/1e6).toFixed(2);
@@ -122,24 +138,23 @@ ${last_case_table}
 
 &amp;#x200B;
 
-|State|Doses administered|Reported Today|Doses per 100 population|
-|:-|:-|:-|:-|
-${vax_stats('Victoria', 'STATE_CLINICS_VIC', 6694900)}
-${vax_stats('NSW', 'STATE_CLINICS_NSW', 8164100)}
-${vax_stats('Queensland', 'STATE_CLINICS_QLD', 5174400)}
-${vax_stats('WA', 'STATE_CLINICS_WA', 2661900)}
-${vax_stats('SA', 'STATE_CLINICS_SA', 1769300)}
-${vax_stats('Tasmania', 'STATE_CLINICS_TAS', 540600)}
-${vax_stats('ACT', 'STATE_CLINICS_ACT', 431100)}
-${vax_stats('NT', 'STATE_CLINICS_NT', 246000)}
-${vax_stats('Federal Residential Care', 'TOTALS_CWTH_AGED_CARE')}
-${vax_stats('GP/Respiratory Clinics', 'TOTALS_CWTH_PRIMARY_CARE')}
-${vax_stats('Australia', 'TOTALS_NATIONAL', 25687000)}
+|**State**|**Immunisation Hubs**|**Last 24h**|**Total Doses**|**Last 24h**|**Doses per 100 population**|
+|:-|:-|:-|:-|:-|:-|
+${state_vax_stats('Victoria', 'VIC', 6694900)}
+${state_vax_stats('NSW', 'NSW', 8164100)}
+${state_vax_stats('Queensland', 'QLD', 5174400)}
+${state_vax_stats('WA', 'WA', 2661900)}
+${state_vax_stats('SA', 'SA', 1769300)}
+${state_vax_stats('Tasmania', 'TAS', 540600)}
+${state_vax_stats('ACT', 'ACT', 431100)}
+${state_vax_stats('NT', 'NT', 246000)}
+${cwth_prog_stats('Federal Residential Care', 'TOTALS_CWTH_AGED_CARE')}
+${cwth_prog_stats('GP/Respiratory Clinics', 'TOTALS_CWTH_PRIMARY_CARE')}
+${nat_vax_stats('Australia', 25687000)}
 
 **Notes:**
 
 * Each person requires two doses to be fully vaccinated
-* Tallies for states do not include Aged Care and GP vaccinations
 * Data current at ${new Date().toLocaleString('en-GB',  { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })}
 
 &amp;#x200B;
@@ -172,3 +187,4 @@ getjson();
 
 
 </body></html>
+
