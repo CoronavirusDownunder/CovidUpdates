@@ -23,16 +23,16 @@ async function getjson() {
 		let last_case = [
 			["ACT", [9,7,2020], "https://www.covid19.act.gov.au/news-articles/act-covid-19-update-9-july-2020"],
 			["Northern Territory"],
-			["NSW", [6,5,2021], "https://old.reddit.com/r/CoronavirusDownunder/comments/n5vxl7/nsw_records_2_new_local_cases_and_9_new_overseas/"],
-			["Queensland", [3,4,2021], "https://twitter.com/qldhealthnews/status/1378181260430827522"],
+			["NSW", [25,6,2021]],
+			["Queensland", [25,6,2021]],
 			["South Australia", [23,11,2020], "https://old.reddit.com/r/CoronavirusDownunder/comments/jz40k6/south_australia_covid19_news_case_updates_and/"],
 			["Tasmania", [15,5,2020], "https://www.themercury.com.au/news/daily-blog-may-15-no-new-cases-modelling-shows-infection-rate/news-story/6a327031d435238b04d81a982b5191c4"],
-			["Victoria", [3,6,2021]],
+			["Victoria", [25,6,2021]],
 			["Western Australia", [23,5,2021], "https://www.abc.net.au/news/2021-06-01/wa-coronavirus-case-got-virus-in-hotel-quarantine/100180480"],
 		];
 		
 		let asterisks = [
-			["Queensland", "Queensland recorded a historic case on [12-April-2021](https://new.reddit.com/r/CoronavirusDownunder/comments/mp1q5j/queensland_0_new_local_cases_1_historic_case_and/)"],
+			//["Queensland", "Queensland recorded a historic case on [12-April-2021](https://new.reddit.com/r/CoronavirusDownunder/comments/mp1q5j/queensland_0_new_local_cases_1_historic_case_and/)"],
 		];
 		
 		table = table.map(row => ({ Local: row[1] - row[0], Travel: row[0], Total: row[1], State: row[2] }));
@@ -63,7 +63,7 @@ async function getjson() {
 
 		let date_options = { year: 'numeric', month: 'long', day: 'numeric' };
 		let src_date = new Date(vax.DATE_AS_AT);
-		src_date.setDate(src_date.getDate() + 1);
+		src_date.setDate(src_date.getDate() + 2);
 		let get_date = o => o === undefined ? undefined : new Date(o[2],o[1]-1,o[0]);
 		let format_date_short = d => `${d.getDate()}-${d.toLocaleString('en-GB', {month:'long'})}-${d.getFullYear()}`
 		let format_date_very_short = d => `${d.getDate()}-${d.toLocaleString('en-GB', {month:'short'})}-${d.getFullYear()}`
@@ -71,7 +71,7 @@ async function getjson() {
 
 		last_case = last_case
 			.map(item => ({ State: item[0], Date: get_date(item[1]), Url: item[2] }))
-			.map(s => ({ State: s.State, Date: s.Date ? format_date_very_short(s.Date) : "Never", Url: s.Url, Days: Math.trunc((src_date - s.Date) / (24*60*60*1000) - 1) }))
+			.map(s => ({ State: s.State, Date: s.Date ? format_date_very_short(s.Date) : "Never", Url: s.Url, Days: Math.trunc((src_date - s.Date) / (24*60*60*1000) ) }))
 			.map(s => ({ State: s.State, Date: s.Url ? `[${s.Date}](${s.Url})` : s.Date, Days: isNaN(s.Days) ? "-" : s.Days }));
 		last_case = stableSort(last_case, (a, b) => a.Days != "-" && b.Days == "-" || a.Days < b.Days);
 		let last_case_by_state = last_case.reduce((a,x) => ({...a, [x.State]: x}), {});
@@ -159,7 +159,7 @@ ${nat_vax_stats('Australia', 25687000)}
 
 &amp;#x200B;
 
-[Chart: Vaccinations by State\/Program](https://preview.redd.it/8oireex1fm071.png?width=802&format=png&auto=webp&s=820dab4f5b846d077c093ae4f79fafb235471f52)
+[Chart: Vaccinations by State\/Program](https://preview.redd.it/67bkywrsz5671.png?width=1080&format=png&auto=webp&s=bc4009f6dd72473eb2f7dc5bf605665d629d4d4e)
 
 Links and resources
 
