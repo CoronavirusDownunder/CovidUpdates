@@ -10,10 +10,10 @@ async function getjson() {
 		
 		// per covidlive, travel on left, total on right
 		let table = [
-			[0, 3, "Victoria"],
-			[2, 2, "NSW"],
-			[2, 2, "Queensland"],
-			[0, 0, "Western Australia"],
+			[0, 2, "NSW"],
+			[0, 2, "Queensland"],
+			[1, 1, "Victoria"],
+			[1, 1, "Western Australia"],
 			[1, 1, "South Australia"],
 			[0, 0, "Tasmania"],
 			[0, 0, "Northern Territory"],
@@ -22,13 +22,13 @@ async function getjson() {
 		
 		let last_case = [
 			["ACT", [9,7,2020], "https://www.covid19.act.gov.au/news-articles/act-covid-19-update-9-july-2020"],
-			["Northern Territory"],
-			["NSW", [25,6,2021]],
-			["Queensland", [25,6,2021]],
-			["South Australia", [23,11,2020], "https://old.reddit.com/r/CoronavirusDownunder/comments/jz40k6/south_australia_covid19_news_case_updates_and/"],
+			["Northern Territory", [3,7,2021]],
+			["NSW", [5,7,2021]],
+			["Queensland", [5,7,2021]],
+			["South Australia", [2,7,2021]],
 			["Tasmania", [15,5,2020], "https://www.themercury.com.au/news/daily-blog-may-15-no-new-cases-modelling-shows-infection-rate/news-story/6a327031d435238b04d81a982b5191c4"],
-			["Victoria", [25,6,2021]],
-			["Western Australia", [23,5,2021], "https://www.abc.net.au/news/2021-06-01/wa-coronavirus-case-got-virus-in-hotel-quarantine/100180480"],
+			["Victoria", [30,6,2021]],
+			["Western Australia", [4,7,2021]],
 		];
 		
 		let asterisks = [
@@ -113,7 +113,7 @@ async function getjson() {
 		document.getElementsByName("message")[0].innerHTML = `
 # Summary
 
-* Victoria recorded ${states.Victoria.Local} new locally transmitted cases today
+* Australia recorded ${states.NSW.Local+states.Queensland.Local} new locally transmitted cases today
 * **${vax_today} additional vaccinations** were reported today
 * A **total ${vax.TOTALS_NATIONAL_TOTAL.toLocaleString()}** vaccine doses have been administered in Australia
 * There were ${states.TOTAL.Travel} new overseas cases recorded today
