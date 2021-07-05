@@ -113,7 +113,7 @@ async function getjson() {
 		document.getElementsByName("message")[0].innerHTML = `
 # Summary
 
-* Australia recorded ${states.NSW.Local+states.Queensland.Local} new locally transmitted cases today
+* Australia recorded ${states.NSW.Local+states.Queensland.Local} new locally transmitted cases today with local cases in NSW (${states.NSW.Local}) and Queensland(${states.Queensland.Local}).
 * **${vax_today} additional vaccinations** were reported today
 * A **total ${vax.TOTALS_NATIONAL_TOTAL.toLocaleString()}** vaccine doses have been administered in Australia
 * There were ${states.TOTAL.Travel} new overseas cases recorded today
@@ -159,7 +159,7 @@ ${nat_vax_stats('Australia', 25687000)}
 
 &amp;#x200B;
 
-[Chart: Vaccinations by State\/Program](https://preview.redd.it/67bkywrsz5671.png?width=1080&format=png&auto=webp&s=bc4009f6dd72473eb2f7dc5bf605665d629d4d4e)
+[Chart: Vaccinations by State\/Program](https://preview.redd.it/0n8el2fl4c971.png?width=1080&format=png&auto=webp&s=37cc30157a5c492572f52b7c4e063005ee908d4f)
 
 Links and resources
 
