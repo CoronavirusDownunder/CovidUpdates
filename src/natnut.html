@@ -10,21 +10,21 @@ async function getjson() {
 		
 		// per covidlive, travel on left, total on right
 		let table = [
-			[0, 2, "NSW"],
-			[0, 2, "Queensland"],
+			[1, 45, "NSW"],
+			[0, 0, "Queensland"],
 			[1, 1, "Victoria"],
-			[1, 1, "Western Australia"],
-			[1, 1, "South Australia"],
+			[0, 0, "Western Australia"],
+			[2, 2, "South Australia"],
 			[0, 0, "Tasmania"],
-			[0, 0, "Northern Territory"],
+			[2, 2, "Northern Territory"],
 			[0, 0, "ACT"],
 		];
 		
 		let last_case = [
 			["ACT", [9,7,2020], "https://www.covid19.act.gov.au/news-articles/act-covid-19-update-9-july-2020"],
-			["Northern Territory", [3,7,2021]],
-			["NSW", [5,7,2021]],
-			["Queensland", [5,7,2021]],
+			["Northern Territory", [8,7,2021]],
+			["NSW", [9,7,2021]],
+			["Queensland", [8,7,2021]],
 			["South Australia", [2,7,2021]],
 			["Tasmania", [15,5,2020], "https://www.themercury.com.au/news/daily-blog-may-15-no-new-cases-modelling-shows-infection-rate/news-story/6a327031d435238b04d81a982b5191c4"],
 			["Victoria", [30,6,2021]],
@@ -62,6 +62,9 @@ async function getjson() {
 			alert("Validation of vaccine stats failed");
 
 		let date_options = { year: 'numeric', month: 'long', day: 'numeric' };
+		//let tmp_date = new Date(vax.DATE_AS_AT);
+		//let src_date = new Date(Date.UTC(tmp_date.getFullYear(), tmp_date.getMonth(), tmp_date.getDay()));
+		//src_date.setDate(src_date.getDate()+1);
 		let src_date = new Date(vax.DATE_AS_AT);
 		src_date.setDate(src_date.getDate() + 2);
 		let get_date = o => o === undefined ? undefined : new Date(o[2],o[1]-1,o[0]);
@@ -187,4 +190,5 @@ getjson();
 
 
 </body></html>
+
 
