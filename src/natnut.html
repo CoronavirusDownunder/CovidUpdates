@@ -10,25 +10,25 @@ async function getjson() {
 		
 		// per covidlive, travel on left, total on right
 		let table = [
-			[1, 45, "NSW"],
-			[0, 0, "Queensland"],
-			[1, 1, "Victoria"],
-			[0, 0, "Western Australia"],
-			[2, 2, "South Australia"],
+			[0, 0, "Victoria"],
+			[4, 116, "NSW"],
+			[1, 1, "Queensland"],
+			[1, 1, "Western Australia"],
+			[0, 0, "South Australia"],
 			[0, 0, "Tasmania"],
-			[2, 2, "Northern Territory"],
+			[0, 0, "Northern Territory"],
 			[0, 0, "ACT"],
 		];
 		
 		let last_case = [
 			["ACT", [9,7,2020], "https://www.covid19.act.gov.au/news-articles/act-covid-19-update-9-july-2020"],
 			["Northern Territory", [8,7,2021]],
-			["NSW", [9,7,2021]],
+			["NSW", [12,7,2021]],
 			["Queensland", [8,7,2021]],
 			["South Australia", [2,7,2021]],
 			["Tasmania", [15,5,2020], "https://www.themercury.com.au/news/daily-blog-may-15-no-new-cases-modelling-shows-infection-rate/news-story/6a327031d435238b04d81a982b5191c4"],
 			["Victoria", [30,6,2021]],
-			["Western Australia", [4,7,2021]],
+			["Western Australia", [11,7,2021]],
 		];
 		
 		let asterisks = [
@@ -62,11 +62,8 @@ async function getjson() {
 			alert("Validation of vaccine stats failed");
 
 		let date_options = { year: 'numeric', month: 'long', day: 'numeric' };
-		//let tmp_date = new Date(vax.DATE_AS_AT);
-		//let src_date = new Date(Date.UTC(tmp_date.getFullYear(), tmp_date.getMonth(), tmp_date.getDay()));
-		//src_date.setDate(src_date.getDate()+1);
-		let src_date = new Date(vax.DATE_AS_AT);
-		src_date.setDate(src_date.getDate() + 2);
+		let src_date = new Date(vax.DATE_AS_AT+"T14:00:00Z");
+		src_date.setDate(src_date.getDate() + 1);
 		let get_date = o => o === undefined ? undefined : new Date(o[2],o[1]-1,o[0]);
 		let format_date_short = d => `${d.getDate()}-${d.toLocaleString('en-GB', {month:'long'})}-${d.getFullYear()}`
 		let format_date_very_short = d => `${d.getDate()}-${d.toLocaleString('en-GB', {month:'short'})}-${d.getFullYear()}`
@@ -116,7 +113,7 @@ async function getjson() {
 		document.getElementsByName("message")[0].innerHTML = `
 # Summary
 
-* Australia recorded ${states.NSW.Local+states.Queensland.Local} new locally transmitted cases today with local cases in NSW (${states.NSW.Local}) and Queensland(${states.Queensland.Local}).
+* NSW recorded ${states.NSW.Local} new locally transmitted cases today
 * **${vax_today} additional vaccinations** were reported today
 * A **total ${vax.TOTALS_NATIONAL_TOTAL.toLocaleString()}** vaccine doses have been administered in Australia
 * There were ${states.TOTAL.Travel} new overseas cases recorded today
@@ -130,7 +127,7 @@ async function getjson() {
 ${table_formatted}
 &amp;#x200B;
 
-**Days since last locally acquired case as at ${new Date().toLocaleString('en-GB', date_options)}**
+**Days since last locally acquired case as at ${src_date.toLocaleString('en-GB', date_options)}**
 
 ||Last locally acquired case|Days|
 |:-|:-|:-|
